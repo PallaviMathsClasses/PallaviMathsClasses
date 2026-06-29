@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(req: Request) {
   const { deviceHash } = await req.json()
   if (!deviceHash) return NextResponse.json({ error: 'Missing deviceHash' }, { status: 400 })
