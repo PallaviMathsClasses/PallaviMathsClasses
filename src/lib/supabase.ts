@@ -63,9 +63,9 @@ export type ExamResult = {
   student?: Student
 }
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJ.placeholder'
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJ.placeholder'
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://qjaegxhzfjnakrkhivcn.supabase.co'
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYWVneGh6ZmpuYWtya2hpdmNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3MTk0NzUsImV4cCI6MjA5ODI5NTQ3NX0.jife3dtIRptO7tLUuKU2FaHVqPcVaSdT9rnfmtLXlgk'
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYWVneGh6ZmpuYWtya2hpdmNuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MjcxOTQ3NSwiZXhwIjoyMDk4Mjk1NDc1fQ.R5-XcrayAFSNThOv-0KhEdK8EumYboFm3XAJyW6lZKE'
 
 // Browser client (for client components)
 export const createBrowserClient = () =>
