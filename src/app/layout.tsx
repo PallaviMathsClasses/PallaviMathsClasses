@@ -5,14 +5,14 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'Pallavi Maths Classes',
+  title: 'Pallavi Mam Maths Classes',
   description: 'Expert Maths coaching by Dr. Pallavi Agarwal — Class 9th to 12th CBSE. 25 years of experience, 100% pass results.',
   manifest: '/manifest.json',
   icons: {
     apple: '/icons/icon-192x192.png',
   },
   openGraph: {
-    title: 'Pallavi Maths Classes',
+    title: 'Pallavi Mam Maths Classes',
     description: 'Expert Maths coaching for Class 9–12 CBSE by Dr. Pallavi Agarwal',
     type: 'website',
   },
@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Pallavi Maths" />
+        <meta name="apple-mobile-web-app-title" content="Pallavi Mam Maths" />
       </head>
       <body className="font-sans bg-white text-gray-900 antialiased">
         {children}

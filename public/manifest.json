@@ -1,6 +1,6 @@
 {
-  "name": "Pallavi Maths Classes",
-  "short_name": "Pallavi Maths",
+  "name": "Pallavi Mam Maths Classes",
+  "short_name": "Pallavi Mam Maths",
   "description": "Expert Maths coaching by Dr. Pallavi Agarwal",
   "start_url": "/",
   "display": "standalone",
@@ -70,6 +70,13 @@
       "short_name": "Exam",
       "description": "Create new exam result",
       "url": "/admin/create-exam",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Fee History",
+      "short_name": "Fees",
+      "description": "Track student fee payments",
+      "url": "/admin/fee-history",
       "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
     }
   ],

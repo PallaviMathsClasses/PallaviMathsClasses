@@ -66,7 +66,7 @@ export default function LoginPage() {
           <div className="w-16 h-16 bg-brand-600 rounded-3xl flex items-center justify-center shadow-xl mx-auto mb-4">
             <span className="text-white text-2xl font-bold">M</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Pallavi Maths</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Pallavi Mam Maths</h1>
           <p className="text-gray-500 text-sm mt-1">Admin access only</p>
         </div>
 

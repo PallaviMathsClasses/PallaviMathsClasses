@@ -6,6 +6,7 @@ import Link from 'next/link'
 
 const NAV = [
   { href: '/admin/attendance', icon: '✅', label: 'Attendance' },
+  { href: '/admin/fee-history', icon: '💰', label: 'Fee History' },
   { href: '/admin/create-exam', icon: '📝', label: 'Create Exam' },
   { href: '/admin/students', icon: '👥', label: 'Students' },
   { href: '/admin/result-links', icon: '🔗', label: 'Result Links' },
@@ -59,7 +60,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="font-semibold text-gray-900 text-sm leading-tight">
                 {currentNav?.label || 'Admin'}
               </div>
-              <div className="text-xs text-gray-400">Pallavi Maths</div>
+              <div className="text-xs text-gray-400">Pallavi Mam Maths</div>
             </div>
           </div>
           <div className="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center">
@@ -82,7 +83,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <span className="text-white font-bold">M</span>
                 </div>
                 <div>
-                  <div className="font-bold text-gray-900">Pallavi Maths</div>
+                  <div className="font-bold text-gray-900">Pallavi Mam Maths</div>
                   <div className="text-xs text-gray-500">Admin panel</div>
                 </div>
               </div>
@@ -128,7 +129,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Bottom nav for mobile */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 safe-area-pb z-30 md:hidden">
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-5">
           {NAV.map((item) => (
             <Link
               key={item.href}
