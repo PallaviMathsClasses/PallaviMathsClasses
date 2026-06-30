@@ -44,7 +44,7 @@ export default function FeeHistoryPage() {
         },
       }
     }))
-    setEditedCells(prev => new Set([...prev, `${studentId}-${month}`]))
+    setEditedCells(prev => { const n = new Set(Array.from(prev)); n.add(`${studentId}-${month}`); return n })
   }
 
   const handlePaidToggle = (studentId: string, month: string) => {
@@ -60,7 +60,7 @@ export default function FeeHistoryPage() {
         },
       }
     }))
-    setEditedCells(prev => new Set([...prev, `${studentId}-${month}`]))
+    setEditedCells(prev => { const n = new Set(Array.from(prev)); n.add(`${studentId}-${month}`); return n })
   }
 
   const handleSave = async () => {
