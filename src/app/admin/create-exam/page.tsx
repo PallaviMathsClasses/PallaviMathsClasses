@@ -75,11 +75,6 @@ export default function CreateExamPage() {
     navigator.clipboard.writeText(url)
   }
 
-  const whatsappShare = (url: string, testName: string) => {
-    const text = encodeURIComponent(`📊 *Test Result — ${testName}*\n\nClick to view results: ${url}`)
-    window.open(`https://wa.me/?text=${text}`, '_blank')
-  }
-
   if (published) {
     return (
       <div className="pb-24">

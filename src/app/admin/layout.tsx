@@ -25,9 +25,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       setIsAuthed(true)
     } else {
       setIsAuthed(false)
-      router.replace('/admin/login')
+      // Only redirect if NOT already on the login page (avoid infinite loop)
+      if (pathname !== '/admin/login') {
+        router.replace('/admin/login')
+      }
     }
-  }, [router])
+  }, [router, pathname])
 
   if (isAuthed === null) {
     return (
@@ -37,7 +40,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     )
   }
 
-  if (!isAuthed) return null
+  // On login page when not authed, just render children (the login form) without nav
+  if (!isAuthed) return <>{children}</>
 
   const currentNav = NAV.find(n => pathname.startsWith(n.href))
 
