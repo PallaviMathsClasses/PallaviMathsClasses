@@ -4,8 +4,7 @@ import { createServerClient } from '@/lib/supabase'
 export const dynamic = 'force-dynamic'
 
 // Simple PIN hash for verification — the PIN is checked server-side only
-// Default PIN: 1234 (Pallavi can change it in the DB later)
-const ADMIN_PIN_HASH = '7110eda4d09e062aa5e4a390b0a572ac0d2c0220' // SHA-1 of "1234"
+const ADMIN_PIN_HASH = '183723726a927563ad46963f2138cc147d04cea0' // SHA-1 of "1026"
 
 export async function POST(req: Request) {
   const body = await req.json()
