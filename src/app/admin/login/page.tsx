@@ -1,61 +1,95 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createBrowserClient } from '@/lib/supabase'
+
+function getDeviceHash() {
+  return btoa(navigator.userAgent + (navigator.hardwareConcurrency || 4) + screen.width + screen.height)
+    .replace(/[^a-zA-Z0-9]/g, '').substring(0, 32)
+}
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false)
+  const [pin, setPin] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const inputRef = useRef<HTMLInputElement>(null)
+  const pinRef = useRef(pin)
+  pinRef.current = pin
 
   useEffect(() => {
-    // Check if already authed via device token
     const auth = localStorage.getItem('pallavi_admin_auth')
     const deviceToken = document.cookie.match(/device_token=([^;]+)/)?.[1]
     if (auth === 'true' || deviceToken) {
       router.replace('/admin/attendance')
+      return
     }
+    setTimeout(() => inputRef.current?.focus(), 100)
+  }, [router])
 
-    // Handle OAuth callback
-    const supabase = createBrowserClient()
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user?.email === 'pallaviclasses@gmail.com') {
-        // Save device token
-        const deviceHash = btoa(navigator.userAgent + (navigator.hardwareConcurrency || 4))
-          .replace(/[^a-zA-Z0-9]/g, '').substring(0, 32)
-        
-        await fetch('/api/auth/device', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ deviceHash }),
-        })
+  const handleLogin = useCallback(async (pinValue?: string) => {
+    const currentPin = pinValue || pinRef.current
+    if (currentPin.length < 4) {
+      setError('Enter 4-digit PIN')
+      return
+    }
+    setLoading(true)
+    setError('')
 
+    const deviceHash = getDeviceHash()
+
+    try {
+      const res = await fetch('/api/auth/device', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: currentPin, deviceHash }),
+      })
+      const data = await res.json()
+
+      if (data.success) {
         document.cookie = `device_token=${deviceHash}; max-age=${365 * 24 * 3600}; path=/; SameSite=Lax`
         localStorage.setItem('pallavi_admin_auth', 'true')
         router.replace('/admin/attendance')
-      } else if (event === 'SIGNED_IN') {
-        setError('Access restricted to pallaviclasses@gmail.com only.')
-        await supabase.auth.signOut()
+      } else {
+        setError(data.error || 'Login failed')
+        setPin('')
+        pinRef.current = ''
+        inputRef.current?.focus()
       }
-    })
+    } catch {
+      setError('Network error. Try again.')
+      setPin('')
+      pinRef.current = ''
+    }
+
+    setLoading(false)
   }, [router])
 
-  const handleGoogleSignIn = async () => {
-    setLoading(true)
-    setError('')
-    const supabase = createBrowserClient()
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/admin/login`,
-        queryParams: { login_hint: 'pallaviclasses@gmail.com' },
-      },
-    })
-    if (error) {
-      setError(error.message)
-      setLoading(false)
+  // Auto-submit when 4 digits are entered
+  useEffect(() => {
+    if (pin.length === 4 && !loading) {
+      const timer = setTimeout(() => handleLogin(pin), 200)
+      return () => clearTimeout(timer)
     }
+  }, [pin, loading, handleLogin])
+
+  const addDigit = (digit: string) => {
+    if (pin.length < 4 && !loading) {
+      const newPin = pin + digit
+      setPin(newPin)
+      setError('')
+    }
+  }
+
+  const deleteDigit = () => {
+    if (!loading) {
+      setPin(p => p.slice(0, -1))
+      setError('')
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleLogin()
   }
 
   return (
@@ -74,41 +108,98 @@ export default function LoginPage() {
         <div className="card shadow-lg">
           <h2 className="text-lg font-semibold text-gray-900 mb-1">Welcome back, Pallavi</h2>
           <p className="text-sm text-gray-500 mb-6">
-            Sign in with your Google account to manage attendance, results, and students.
+            Enter your 4-digit PIN to manage attendance, results, and students.
           </p>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-3 mb-4 text-sm">
+            <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-3 mb-4 text-sm text-center">
               {error}
             </div>
           )}
 
+          {/* PIN dots */}
+          <div className="flex justify-center gap-3 mb-6">
+            {[0, 1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className={`w-14 h-16 rounded-2xl border-2 flex items-center justify-center text-2xl font-bold transition-all duration-150 ${
+                  pin.length > i
+                    ? 'border-brand-600 bg-orange-50 text-brand-700'
+                    : 'border-gray-200 bg-white text-gray-300'
+                } ${pin.length === i && !loading ? 'border-brand-400 ring-2 ring-brand-100' : ''}`}
+              >
+                {pin[i] ? '●' : ''}
+              </div>
+            ))}
+          </div>
+
+          {/* Hidden native input (for keyboard support on mobile) */}
+          <input
+            ref={inputRef}
+            type="number"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={4}
+            value={pin}
+            onChange={(e) => {
+              const val = e.target.value.replace(/\D/g, '').slice(0, 4)
+              setPin(val)
+              setError('')
+            }}
+            onKeyDown={handleKeyDown}
+            className="opacity-0 absolute w-0 h-0 overflow-hidden pointer-events-none"
+            autoComplete="off"
+          />
+
+          {/* Tap to focus native keyboard */}
           <button
-            onClick={handleGoogleSignIn}
+            onClick={() => inputRef.current?.focus()}
             disabled={loading}
-            className="w-full bg-white border border-gray-200 text-gray-700 px-5 py-3 rounded-xl font-medium
-                       hover:bg-gray-50 active:scale-95 transition-all duration-150 shadow-sm
-                       flex items-center justify-center gap-3 disabled:opacity-50"
+            className="w-full bg-gray-100 text-gray-500 py-2.5 rounded-xl text-sm font-medium
+                       hover:bg-gray-200 active:scale-95 transition-all duration-150 mb-3 disabled:opacity-50"
           >
-            {loading ? (
-              <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <svg viewBox="0 0 24 24" className="w-5 h-5">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-              </svg>
-            )}
-            {loading ? 'Signing in…' : 'Continue with Google'}
+            {pin.length === 0 ? 'Tap to type PIN' : 'Tap to edit'}
           </button>
 
-          <p className="text-xs text-gray-400 mt-4 text-center">
-            Access restricted to pallaviclasses@gmail.com
-          </p>
+          {/* On-screen numpad */}
+          <div className="grid grid-cols-3 gap-2">
+            {['1','2','3','4','5','6','7','8','9','','0','del'].map((key) => {
+              if (key === '') return <div key="empty" />
+              if (key === 'del') {
+                return (
+                  <button
+                    key="del"
+                    onClick={deleteDigit}
+                    disabled={loading}
+                    className="h-14 rounded-xl text-lg font-medium text-red-500 bg-red-50
+                               hover:bg-red-100 active:scale-95 transition-all disabled:opacity-50"
+                  >
+                    ⌫
+                  </button>
+                )
+              }
+              return (
+                <button
+                  key={key}
+                  onClick={() => addDigit(key)}
+                  disabled={loading}
+                  className="h-14 rounded-xl text-xl font-semibold text-gray-700 bg-white border border-gray-200
+                             hover:bg-gray-50 active:scale-95 active:bg-brand-50 active:text-brand-700 transition-all disabled:opacity-50"
+                >
+                  {key}
+                </button>
+              )
+            })}
+          </div>
+
+          {loading && (
+            <div className="flex items-center justify-center gap-2 mt-4 text-sm text-brand-600">
+              <div className="w-4 h-4 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" />
+              Verifying…
+            </div>
+          )}
         </div>
 
-        {/* Device memory notice */}
         <p className="text-xs text-gray-400 text-center mt-4">
           This device will be remembered — no re-login needed next time
         </p>
